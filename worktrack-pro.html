@@ -1,0 +1,2038 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#2563EB">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="WorkTrack Pro">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<title>WorkTrack Pro | Worker Attendance Management System</title>
+<!-- ============== FIREBASE SDK (Google Login + Cloud Sync) ============== -->
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<style>
+/* ===================== ROOT / THEME ===================== */
+:root{
+  --primary:#2563EB;
+  --primary-dark:#1d4ed8;
+  --primary-light:#3b82f6;
+  --primary-tint:#eef3ff;
+  --bg:#f3f6fc;
+  --bg-grad:linear-gradient(160deg,#eef3ff 0%,#f7f9fd 40%,#eef2fb 100%);
+  --card-bg:rgba(255,255,255,0.72);
+  --card-bg-solid:#ffffff;
+  --card-border:rgba(37,99,235,0.10);
+  --text:#0f172a;
+  --text-muted:#64748b;
+  --text-faint:#94a3b8;
+  --green:#16a34a;
+  --green-tint:#e8fbef;
+  --red:#dc2626;
+  --red-tint:#fdecec;
+  --amber:#d97706;
+  --amber-tint:#fff4e0;
+  --purple:#7c3aed;
+  --purple-tint:#f2ecff;
+  --shadow-sm:0 2px 10px rgba(30,58,138,0.06);
+  --shadow-md:0 10px 30px rgba(30,58,138,0.10);
+  --shadow-lg:0 20px 50px rgba(30,58,138,0.16);
+  --radius-lg:20px;
+  --radius-md:16px;
+  --radius-sm:12px;
+  --header-h:64px;
+}
+html.dark{
+  --bg:#0b1120;
+  --bg-grad:linear-gradient(160deg,#0b1120 0%,#0d1428 50%,#0a0f1e 100%);
+  --card-bg:rgba(24,31,51,0.62);
+  --card-bg-solid:#151c30;
+  --card-border:rgba(255,255,255,0.07);
+  --text:#eef2f9;
+  --text-muted:#a3adc2;
+  --text-faint:#6b7690;
+  --green-tint:rgba(22,163,74,0.14);
+  --red-tint:rgba(220,38,38,0.14);
+  --amber-tint:rgba(217,119,6,0.16);
+  --purple-tint:rgba(124,58,237,0.16);
+  --shadow-sm:0 2px 10px rgba(0,0,0,0.25);
+  --shadow-md:0 10px 30px rgba(0,0,0,0.35);
+  --shadow-lg:0 20px 50px rgba(0,0,0,0.5);
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,'Noto Sans Devanagari',Arial,sans-serif;
+  background:var(--bg-grad);
+  color:var(--text);
+  min-height:100vh;
+  transition:background .35s ease,color .35s ease;
+  padding-bottom:40px;
+}
+h1,h2,h3,h4{margin:0; letter-spacing:-.01em;}
+p{margin:0;}
+button{font-family:inherit;}
+::selection{background:var(--primary-light); color:#fff;}
+.app{max-width:520px; margin:0 auto; position:relative; min-height:100vh;}
+
+/* ===================== SCROLLBAR ===================== */
+::-webkit-scrollbar{width:6px; height:6px;}
+::-webkit-scrollbar-thumb{background:rgba(37,99,235,.3); border-radius:10px;}
+
+/* ===================== HEADER ===================== */
+.topbar{
+  position:sticky; top:0; z-index:40;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 18px;
+  background:linear-gradient(135deg,var(--primary) 0%, var(--primary-dark) 100%);
+  color:#fff;
+  box-shadow:0 6px 24px rgba(37,99,235,0.28);
+  border-radius:0 0 22px 22px;
+}
+.brand{display:flex; align-items:center; gap:10px;}
+.brand-icon{
+  width:40px; height:40px; border-radius:12px;
+  background:rgba(255,255,255,0.18);
+  display:flex; align-items:center; justify-content:center;
+  backdrop-filter:blur(6px);
+  border:1px solid rgba(255,255,255,0.25);
+}
+.brand-icon svg{width:22px; height:22px;}
+.brand-text h1{font-size:17px; font-weight:800; line-height:1.1;}
+.brand-text span{font-size:10.5px; opacity:.88; font-weight:500; display:block; margin-top:2px;}
+.header-right{display:flex; align-items:center; gap:10px;}
+.header-date{font-size:11px; text-align:right; opacity:.92; line-height:1.3; font-weight:500;}
+.header-date b{display:block; font-size:12.5px; font-weight:700;}
+.menu-btn{
+  width:36px; height:36px; border-radius:10px; border:none;
+  background:rgba(255,255,255,0.16); color:#fff;
+  display:flex; align-items:center; justify-content:center; cursor:pointer;
+  transition:background .2s;
+}
+.menu-btn:active{background:rgba(255,255,255,0.32); transform:scale(.94);}
+.menu-btn svg{width:19px;height:19px;}
+
+/* dropdown menu */
+.dropdown{
+  position:fixed; top:70px; right:14px; z-index:60;
+  background:var(--card-bg-solid);
+  border:1px solid var(--card-border);
+  border-radius:16px;
+  box-shadow:var(--shadow-lg);
+  min-width:200px;
+  overflow:hidden;
+  opacity:0; transform:translateY(-8px) scale(.97);
+  pointer-events:none;
+  transition:all .18s ease;
+}
+.dropdown.open{opacity:1; transform:translateY(0) scale(1); pointer-events:auto;}
+.dropdown button{
+  width:100%; text-align:left; padding:13px 16px; background:none; border:none;
+  display:flex; align-items:center; gap:11px; font-size:14px; font-weight:600;
+  color:var(--text); cursor:pointer; border-bottom:1px solid var(--card-border);
+}
+.dropdown button:last-child{border-bottom:none;}
+.dropdown button:active{background:var(--primary-tint);}
+.dropdown svg{width:17px;height:17px; color:var(--primary); flex-shrink:0;}
+.overlay-dim{position:fixed; inset:0; background:rgba(15,23,42,0.25); z-index:55; opacity:0; pointer-events:none; transition:opacity .2s;}
+.overlay-dim.open{opacity:1; pointer-events:auto;}
+
+/* ===================== MAIN CONTAINER ===================== */
+.content{padding:16px 14px 10px;}
+.view{display:none; animation:fadeUp .35s ease;}
+.view.active{display:block;}
+@keyframes fadeUp{from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);}}
+
+/* ===================== GLASS CARD ===================== */
+.glass{
+  background:var(--card-bg);
+  backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+  border:1px solid var(--card-border);
+  border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-sm);
+}
+
+/* ===================== DASHBOARD ===================== */
+.dash-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px;}
+.dash-card{
+  padding:14px; border-radius:var(--radius-md);
+  display:flex; flex-direction:column; gap:6px;
+  position:relative; overflow:hidden;
+}
+.dash-card .dc-icon{
+  width:32px; height:32px; border-radius:9px; display:flex; align-items:center; justify-content:center;
+}
+.dash-card .dc-icon svg{width:17px; height:17px;}
+.dash-card .dc-val{font-size:22px; font-weight:800;}
+.dash-card .dc-label{font-size:11.5px; color:var(--text-muted); font-weight:600;}
+.dc-blue .dc-icon{background:var(--primary-tint); color:var(--primary);}
+.dc-green .dc-icon{background:var(--green-tint); color:var(--green);}
+.dc-red .dc-icon{background:var(--red-tint); color:var(--red);}
+.dc-amber .dc-icon{background:var(--amber-tint); color:var(--amber);}
+
+/* ===================== ACTION BUTTONS ===================== */
+.action-row{display:flex; gap:10px; margin-bottom:16px;}
+.btn{
+  border:none; cursor:pointer; font-weight:700; border-radius:14px;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  transition:transform .12s ease, box-shadow .2s ease, opacity .2s;
+  -webkit-user-select:none; user-select:none;
+}
+.btn:active{transform:scale(.96);}
+.btn svg{width:17px;height:17px;}
+.btn-primary{
+  flex:1.3; padding:14px; font-size:14.5px; color:#fff;
+  background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+  box-shadow:0 10px 22px rgba(37,99,235,0.30);
+}
+.btn-outline{
+  flex:1; padding:14px; font-size:14px; color:var(--primary);
+  background:var(--card-bg); border:1.5px solid var(--primary);
+}
+.btn-block{width:100%;}
+.btn-lg{padding:15px; font-size:15px;}
+.btn-secondary{background:var(--card-bg); color:var(--text); border:1.5px solid var(--card-border);}
+.btn-danger{background:linear-gradient(135deg,#ef4444,#dc2626); color:#fff;}
+.btn-sm{padding:9px 12px; font-size:12.5px; border-radius:10px;}
+
+/* ===================== SEARCH ===================== */
+.search-wrap{position:relative; margin-bottom:14px;}
+.search-wrap svg{position:absolute; left:14px; top:50%; transform:translateY(-50%); width:17px; height:17px; color:var(--text-faint);}
+.search-input{
+  width:100%; padding:13px 14px 13px 40px; border-radius:14px;
+  border:1px solid var(--card-border); background:var(--card-bg);
+  color:var(--text); font-size:14px; backdrop-filter:blur(10px);
+  outline:none;
+}
+.search-input:focus{border-color:var(--primary);}
+.search-input::placeholder{color:var(--text-faint);}
+
+.section-title{font-size:13px; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:.06em; margin:18px 4px 10px;}
+
+/* ===================== DATE PICKER CARD ===================== */
+.date-picker-card{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  padding:13px 14px; border-radius:var(--radius-md); margin-bottom:14px;
+}
+.date-picker-card.past-mode{
+  border:1.5px solid var(--amber);
+  background:var(--amber-tint);
+}
+.dp-left{display:flex; align-items:center; gap:10px; color:var(--primary);}
+.date-picker-card.past-mode .dp-left{color:var(--amber);}
+.dp-label{font-size:10.5px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.03em;}
+.dp-date{font-size:14px; font-weight:800; color:var(--text); margin-top:1px;}
+#attendDateInput{
+  padding:9px 10px; border-radius:11px; border:1px solid var(--card-border);
+  background:var(--card-bg); color:var(--text); font-size:12.5px; max-width:150px;
+}
+
+/* ===================== WORKER CARD ===================== */
+.worker-card{
+  padding:14px; border-radius:var(--radius-md); margin-bottom:12px;
+  display:flex; flex-direction:column; gap:12px;
+  transition:box-shadow .25s ease, transform .25s ease;
+}
+.worker-top{display:flex; align-items:center; gap:12px;}
+.worker-serial{
+  font-size:11px; font-weight:800; color:var(--primary); background:var(--primary-tint);
+  width:24px; height:24px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.worker-avatar{
+  width:46px; height:46px; border-radius:13px; object-fit:cover; flex-shrink:0;
+  background:linear-gradient(135deg,var(--primary-light),var(--primary-dark));
+  display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:16px;
+}
+.worker-info{flex:1; min-width:0;}
+.worker-name{font-size:15px; font-weight:750; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.worker-meta{font-size:11.5px; color:var(--text-muted); margin-top:2px; display:flex; gap:6px; flex-wrap:wrap; align-items:center;}
+.tag{background:var(--primary-tint); color:var(--primary); padding:2px 7px; border-radius:6px; font-weight:700; font-size:10.5px;}
+.worker-status-badge{font-size:10px; font-weight:800; padding:3px 9px; border-radius:20px; white-space:nowrap;}
+.badge-present{background:var(--green-tint); color:var(--green);}
+.badge-absent{background:var(--red-tint); color:var(--red);}
+.badge-half{background:var(--amber-tint); color:var(--amber);}
+.badge-leave{background:var(--purple-tint); color:var(--purple);}
+.badge-none{background:var(--card-bg); color:var(--text-faint); border:1px dashed var(--card-border);}
+
+.attend-row{display:flex; gap:8px;}
+.att-btn{
+  flex:1; padding:12px 6px; border-radius:12px; border:1.5px solid transparent;
+  font-weight:800; font-size:13px; display:flex; flex-direction:column; align-items:center; gap:3px;
+  cursor:pointer; transition:all .15s ease; background:var(--card-bg);
+}
+.att-btn svg{width:18px;height:18px;}
+.att-present{color:var(--green); border-color:rgba(22,163,74,0.25);}
+.att-present.active{background:linear-gradient(135deg,#22c55e,#16a34a); color:#fff; box-shadow:0 8px 18px rgba(22,163,74,0.35);}
+.att-absent{color:var(--red); border-color:rgba(220,38,38,0.25);}
+.att-absent.active{background:linear-gradient(135deg,#f87171,#dc2626); color:#fff; box-shadow:0 8px 18px rgba(220,38,38,0.35);}
+.att-btn:active{transform:scale(.93);}
+.mini-row{display:flex; gap:8px; justify-content:space-between;}
+.mini-link{
+  flex:1; text-align:center; font-size:11px; font-weight:700; padding:7px; border-radius:9px;
+  color:var(--text-muted); background:transparent; border:1px dashed var(--card-border); cursor:pointer;
+}
+.mini-link.on-half{color:var(--amber); border-color:var(--amber); background:var(--amber-tint);}
+.mini-link.on-leave{color:var(--purple); border-color:var(--purple); background:var(--purple-tint);}
+.worker-actions{display:flex; gap:8px;}
+.icon-btn{
+  width:34px; height:34px; border-radius:10px; border:1px solid var(--card-border); background:var(--card-bg);
+  display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text-muted);
+}
+.icon-btn svg{width:15px;height:15px;}
+.icon-btn:active{transform:scale(.9);}
+
+.pulse-anim{animation:pulseGood .5s ease;}
+@keyframes pulseGood{0%{box-shadow:0 0 0 0 rgba(22,163,74,.5);} 70%{box-shadow:0 0 0 14px rgba(22,163,74,0);} 100%{box-shadow:0 0 0 0 rgba(22,163,74,0);}}
+.pulse-bad{animation:pulseBad .5s ease;}
+@keyframes pulseBad{0%{box-shadow:0 0 0 0 rgba(220,38,38,.5);} 70%{box-shadow:0 0 0 14px rgba(220,38,38,0);} 100%{box-shadow:0 0 0 0 rgba(220,38,38,0);}}
+
+.empty-state{text-align:center; padding:50px 20px; color:var(--text-muted);}
+.empty-state svg{width:56px; height:56px; color:var(--text-faint); margin-bottom:12px;}
+.empty-state h3{font-size:15px; margin-bottom:4px; color:var(--text);}
+.empty-state p{font-size:12.5px;}
+
+/* ===================== FORM ===================== */
+.page-title{display:flex; align-items:center; gap:10px; margin-bottom:18px;}
+.back-btn{
+  width:38px; height:38px; border-radius:11px; border:1px solid var(--card-border);
+  background:var(--card-bg); display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text);
+}
+.back-btn svg{width:18px;height:18px;}
+.page-title h2{font-size:18px; font-weight:800;}
+.page-title p{font-size:11.5px; color:var(--text-muted); margin-top:2px;}
+
+.form-card{padding:18px; border-radius:var(--radius-lg);}
+.field{margin-bottom:16px;}
+.field label{display:block; font-size:12.5px; font-weight:700; color:var(--text-muted); margin-bottom:7px;}
+.field input,.field select{
+  width:100%; padding:13px 14px; border-radius:13px; border:1.5px solid var(--card-border);
+  background:var(--bg); color:var(--text); font-size:14.5px; outline:none; transition:border-color .15s;
+}
+html.dark .field input, html.dark .field select{background:rgba(255,255,255,0.04);}
+.field input:focus, .field select:focus{border-color:var(--primary);}
+.field-hint{font-size:11px; color:var(--text-faint); margin-top:5px;}
+.photo-upload{
+  display:flex; align-items:center; gap:14px; padding:14px; border:1.5px dashed var(--card-border);
+  border-radius:14px; cursor:pointer; background:var(--bg);
+}
+.photo-preview{
+  width:56px; height:56px; border-radius:14px; object-fit:cover; background:var(--primary-tint);
+  display:flex; align-items:center; justify-content:center; color:var(--primary); flex-shrink:0;
+}
+.photo-preview svg{width:24px;height:24px;}
+.photo-upload span{font-size:13px; font-weight:600; color:var(--text-muted);}
+.form-actions{display:flex; gap:10px; margin-top:6px;}
+.autoid-box{
+  padding:12px 14px; border-radius:13px; background:var(--primary-tint); color:var(--primary);
+  font-weight:800; font-size:14px; letter-spacing:.03em; display:flex; align-items:center; justify-content:space-between;
+}
+
+/* ===================== HISTORY ===================== */
+.filter-row{display:flex; gap:10px; margin-bottom:14px;}
+.filter-row input[type=month]{
+  flex:1; padding:11px 12px; border-radius:13px; border:1px solid var(--card-border);
+  background:var(--card-bg); color:var(--text); font-size:13px;
+}
+.hist-card{padding:15px; border-radius:var(--radius-md); margin-bottom:12px;}
+.hist-head{display:flex; align-items:center; gap:12px; margin-bottom:12px;}
+.hist-stats{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:8px;}
+.hstat{text-align:center; padding:9px 4px; border-radius:11px;}
+.hstat b{display:block; font-size:16px; font-weight:800;}
+.hstat span{font-size:9.5px; font-weight:700; color:var(--text-muted); text-transform:uppercase;}
+.hstat.hp{background:var(--green-tint); color:var(--green);}
+.hstat.ha{background:var(--red-tint); color:var(--red);}
+.hstat.hh{background:var(--amber-tint); color:var(--amber);}
+.hstat.hl{background:var(--purple-tint); color:var(--purple);}
+details.datewise{margin-top:6px;}
+details.datewise summary{
+  cursor:pointer; font-size:12.5px; font-weight:700; color:var(--primary); padding:8px 0; list-style:none; display:flex; align-items:center; gap:6px;
+}
+details.datewise summary::-webkit-details-marker{display:none;}
+.datewise-list{max-height:220px; overflow-y:auto; padding-top:6px;}
+.dw-row{display:flex; justify-content:space-between; align-items:center; padding:8px 10px; border-radius:9px; font-size:12.5px; margin-bottom:5px; background:var(--bg);}
+html.dark .dw-row{background:rgba(255,255,255,0.03);}
+
+/* ===================== SALARY ===================== */
+.salary-card{padding:15px; border-radius:var(--radius-md); margin-bottom:12px;}
+.sal-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;}
+.sal-name{font-weight:750; font-size:14.5px;}
+.sal-wage{font-size:11.5px; color:var(--text-muted);}
+.sal-total{font-size:17px; font-weight:800; color:var(--primary);}
+.sal-breakdown{display:flex; gap:6px; flex-wrap:wrap;}
+.sal-chip{font-size:10.5px; font-weight:700; padding:4px 9px; border-radius:20px;}
+.grand-total{
+  padding:18px; border-radius:var(--radius-lg); margin-top:6px; margin-bottom:16px;
+  background:linear-gradient(135deg,var(--primary),var(--primary-dark)); color:#fff;
+  display:flex; justify-content:space-between; align-items:center; box-shadow:var(--shadow-md);
+}
+.grand-total h3{font-size:12.5px; opacity:.85; font-weight:600;}
+.grand-total .gt-val{font-size:24px; font-weight:800; margin-top:2px;}
+.export-row{display:flex; gap:10px; margin-bottom:16px;}
+
+/* ===================== SETTINGS ===================== */
+.settings-list{padding:6px; border-radius:var(--radius-lg);}
+.set-item{
+  display:flex; align-items:center; justify-content:space-between; gap:10px; padding:15px 12px;
+  border-bottom:1px solid var(--card-border);
+}
+.set-item:last-child{border-bottom:none;}
+.set-left{display:flex; align-items:center; gap:12px;}
+.set-icon{width:38px; height:38px; border-radius:11px; background:var(--primary-tint); color:var(--primary); display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+.set-icon svg{width:18px;height:18px;}
+.set-text b{font-size:13.8px; font-weight:700; display:block;}
+.set-text span{font-size:11px; color:var(--text-muted);}
+.set-icon.danger{background:var(--red-tint); color:var(--red);}
+.set-icon.purple{background:var(--purple-tint); color:var(--purple);}
+
+.switch{position:relative; width:46px; height:26px; flex-shrink:0;}
+.switch input{opacity:0; width:0; height:0;}
+.slider{position:absolute; cursor:pointer; inset:0; background:#cbd5e1; border-radius:30px; transition:.25s;}
+.slider:before{content:""; position:absolute; height:20px; width:20px; left:3px; top:3px; background:#fff; border-radius:50%; transition:.25s; box-shadow:0 2px 5px rgba(0,0,0,.2);}
+input:checked + .slider{background:var(--primary);}
+input:checked + .slider:before{transform:translateX(20px);}
+
+/* ===================== MODAL ===================== */
+.modal-overlay{
+  position:fixed; inset:0; background:rgba(15,23,42,0.45); backdrop-filter:blur(3px);
+  display:flex; align-items:flex-end; justify-content:center; z-index:100;
+  opacity:0; pointer-events:none; transition:opacity .25s;
+}
+.modal-overlay.open{opacity:1; pointer-events:auto;}
+.modal-box{
+  background:var(--card-bg-solid); width:100%; max-width:480px; border-radius:24px 24px 0 0;
+  padding:24px 20px 26px; transform:translateY(100%); transition:transform .3s cubic-bezier(.22,1,.36,1);
+  box-shadow:0 -10px 40px rgba(0,0,0,0.2);
+}
+.modal-overlay.open .modal-box{transform:translateY(0);}
+.modal-icon{
+  width:52px; height:52px; border-radius:16px; background:var(--red-tint); color:var(--red);
+  display:flex; align-items:center; justify-content:center; margin-bottom:14px;
+}
+.modal-icon svg{width:24px;height:24px;}
+.modal-box h3{font-size:16.5px; margin-bottom:6px;}
+.modal-box p{font-size:13px; color:var(--text-muted); line-height:1.5; margin-bottom:20px;}
+.modal-actions{display:flex; gap:10px;}
+
+/* ===================== TOAST ===================== */
+.toast{
+  position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
+  background:#1e293b; color:#fff; padding:13px 20px; border-radius:14px; font-size:13.5px; font-weight:600;
+  display:flex; align-items:center; gap:10px; z-index:200; box-shadow:0 12px 30px rgba(0,0,0,.3);
+  opacity:0; pointer-events:none; transition:all .3s ease; max-width:90%;
+}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+.toast svg{width:18px;height:18px; flex-shrink:0;}
+.toast.t-success{background:linear-gradient(135deg,#16a34a,#15803d);}
+.toast.t-error{background:linear-gradient(135deg,#dc2626,#b91c1c);}
+.toast.t-info{background:linear-gradient(135deg,var(--primary),var(--primary-dark));}
+
+/* About modal */
+.about-box{text-align:center; padding-top:6px;}
+.about-logo{width:64px; height:64px; border-radius:18px; background:linear-gradient(135deg,var(--primary),var(--primary-dark)); display:flex; align-items:center; justify-content:center; margin:0 auto 12px; box-shadow:var(--shadow-md);}
+.about-logo svg{width:32px;height:32px; color:#fff;}
+
+/* Empty small icon circle */
+.circle-ico{width:64px; height:64px; border-radius:50%; background:var(--primary-tint); display:flex; align-items:center; justify-content:center; margin:0 auto 12px; color:var(--primary);}
+.circle-ico svg{width:28px; height:28px;}
+
+/* print */
+@media print{
+  body *{visibility:hidden;}
+  #print-area, #print-area *{visibility:visible;}
+  #print-area{position:absolute; left:0; top:0; width:100%; padding:20px;}
+  .no-print{display:none !important;}
+}
+
+@media (min-width:540px){
+  .app{padding-top:6px;}
+}
+
+/* ===================== AUTH / LOGIN SCREEN ===================== */
+.auth-screen{
+  position:fixed; inset:0; z-index:500;
+  background:linear-gradient(160deg,#1e40af 0%, var(--primary) 45%, var(--primary-dark) 100%);
+  display:flex; align-items:center; justify-content:center;
+  padding:24px; overflow-y:auto;
+}
+.auth-box{
+  width:100%; max-width:380px;
+  background:rgba(255,255,255,0.97);
+  border-radius:24px;
+  padding:32px 26px;
+  box-shadow:0 25px 60px rgba(0,0,0,0.35);
+  animation:fadeUp .4s ease;
+}
+html.dark .auth-box{ background:#151c30; }
+.auth-logo{
+  width:64px; height:64px; border-radius:18px; margin:0 auto 14px;
+  background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+  display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow-md);
+}
+.auth-logo svg{width:30px;height:30px; color:#fff;}
+.auth-box h2{ text-align:center; font-size:19px; color:var(--text); margin-bottom:4px;}
+.auth-box p.auth-sub{ text-align:center; font-size:12.5px; color:var(--text-muted); margin-bottom:22px;}
+.auth-field{margin-bottom:14px;}
+.auth-field label{display:block; font-size:12px; font-weight:700; color:var(--text-muted); margin-bottom:6px;}
+.auth-field input{
+  width:100%; padding:13px 14px; border-radius:13px; border:1.5px solid var(--card-border);
+  background:var(--bg); color:var(--text); font-size:14.5px; outline:none;
+}
+html.dark .auth-field input{background:rgba(255,255,255,0.04);}
+.auth-field input:focus{border-color:var(--primary);}
+.auth-error{
+  background:var(--red-tint); color:var(--red); font-size:12px; font-weight:700;
+  padding:10px 12px; border-radius:11px; margin-bottom:14px; display:none;
+}
+.auth-error.show{display:block;}
+.auth-switch{ text-align:center; font-size:12.5px; color:var(--text-muted); margin-top:16px;}
+.auth-switch a{ color:var(--primary); font-weight:700; cursor:pointer; text-decoration:none;}
+.auth-hint{ text-align:center; font-size:11px; color:var(--text-faint); margin-top:10px; line-height:1.5;}
+
+/* ===================== GOOGLE / CLOUD SYNC ===================== */
+.btn-google{
+  width:100%; padding:13px; border-radius:13px; font-size:14.5px; font-weight:700;
+  background:#fff; color:#3c4043; border:1.5px solid #dadce0;
+  display:flex; align-items:center; justify-content:center; gap:10px; cursor:pointer;
+  box-shadow:0 1px 2px rgba(0,0,0,0.08);
+}
+.btn-google:active{transform:scale(.97);}
+.btn-google svg{width:19px;height:19px;}
+.auth-divider{ display:flex; align-items:center; gap:10px; margin:18px 0; color:var(--text-faint); font-size:11.5px; font-weight:700; text-transform:uppercase;}
+.auth-divider::before,.auth-divider::after{content:""; flex:1; height:1px; background:var(--card-border);}
+.sync-banner{
+  display:flex; align-items:center; gap:10px; padding:11px 13px; border-radius:13px;
+  background:var(--green-tint); color:var(--green); font-size:12px; font-weight:700; margin-bottom:14px;
+}
+.sync-banner.offline{background:var(--amber-tint); color:var(--amber);}
+.sync-banner svg{width:16px;height:16px; flex-shrink:0;}
+.sync-banner .sb-text{flex:1;}
+.sync-banner .sb-text small{display:block; font-weight:500; opacity:.85; font-size:10.5px; margin-top:1px;}
+.gacc-avatar{width:38px;height:38px;border-radius:50%; object-fit:cover; flex-shrink:0; background:var(--primary-tint); display:flex;align-items:center;justify-content:center; color:var(--primary); font-weight:800;}
+
+/* ===================== ADVANCE PAYMENTS ===================== */
+.adv-summary-row{display:flex; gap:8px; margin:10px 0;}
+.adv-summary-row .sal-chip{cursor:default;}
+.adv-net-box{
+  display:flex; justify-content:space-between; align-items:center;
+  padding:10px 12px; border-radius:12px; background:var(--primary-tint); margin-top:10px;
+}
+.adv-net-box b{color:var(--primary); font-size:15px;}
+.adv-net-box span{font-size:11.5px; color:var(--text-muted); font-weight:700;}
+.adv-add-btn{
+  margin-top:10px; width:100%; padding:10px; border-radius:11px; border:1.5px dashed var(--primary);
+  background:var(--primary-tint); color:var(--primary); font-weight:700; font-size:12.5px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; gap:6px;
+}
+.adv-add-btn:active{transform:scale(.97);}
+.adv-list-row{
+  display:flex; justify-content:space-between; align-items:center; padding:9px 10px; border-radius:10px;
+  font-size:12.5px; margin-bottom:6px; background:var(--bg);
+}
+html.dark .adv-list-row{background:rgba(255,255,255,0.03);}
+.adv-list-row .adv-del{color:var(--red); cursor:pointer; width:26px; height:26px; border-radius:8px; display:flex; align-items:center; justify-content:center; border:none; background:var(--red-tint);}
+.adv-list-row .adv-del svg{width:13px;height:13px;}
+.adv-list-left b{display:block; font-size:13px;}
+.adv-list-left span{font-size:10.5px; color:var(--text-muted);}
+#advanceModal .modal-box{max-width:480px; margin:0 auto;}
+</style>
+</head>
+<body>
+
+<!-- ============== SVG ICON SPRITE ============== -->
+<svg width="0" height="0" style="position:absolute">
+<symbol id="ic-logo" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4M12 3l8 4v5c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V7l8-4z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="ic-menu" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></symbol>
+<symbol id="ic-home" viewBox="0 0 24 24" fill="none"><path d="M3 11l9-8 9 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 10v10h14V10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="ic-history" viewBox="0 0 24 24" fill="none"><path d="M3 12a9 9 0 1 0 3-6.7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M3 4v5h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 8v5l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="ic-salary" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 7v10M9.5 9.5c0-1.5 1.2-2 2.5-2s2.5.7 2.5 2c0 1.4-1 1.8-2.5 2.4-1.5.6-2.5 1-2.5 2.4 0 1.3 1.2 2 2.5 2s2.5-.6 2.5-2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+<symbol id="ic-settings" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.14.36.4.66.73.85.28.16.6.24.92.24H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="currentColor" stroke-width="1.6"/></symbol>
+<symbol id="ic-info" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 11v5M12 8h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+<symbol id="ic-plus" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+<symbol id="ic-check" viewBox="0 0 24 24" fill="none"><path d="M4 12l6 6L20 6" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="ic-x" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+<symbol id="ic-users" viewBox="0 0 24 24" fill="none"><path d="M17 20v-1a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="9" cy="7" r="3.2" stroke="currentColor" stroke-width="2"/><path d="M22 20v-1a4 4 0 0 0-3-3.87M16 4.13a4 4 0 0 1 0 7.75" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+<symbol id="ic-money" viewBox="0 0 24 24" fill="none"><rect x="2" y="6" width="20" height="12" rx="2" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/></symbol>
+<symbol id="ic-search" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+<symbol id="ic-back" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="ic-camera" viewBox="0 0 24 24" fill="none"><path d="M4 8h3l2-3h6l2 3h3v11H4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="13.5" r="3.3" stroke="currentColor" stroke-width="2"/></symbol>
+<symbol id="ic-edit" viewBox="0 0 24 24" fill="none"><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+<symbol id="ic-trash" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="ic-moon" viewBox="0 0 24 24" fill="none"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+<symbol id="ic-backup" viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0l4-4m-4 4l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+<symbol id="ic-restore" viewBox="0 0 24 24" fill="none"><path d="M12 21V9m0 0l4 4m-4-4l-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 7V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+<symbol id="ic-print" viewBox="0 0 24 24" fill="none"><path d="M6 9V3h12v6" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><rect x="4" y="9" width="16" height="8" rx="1.5" stroke="currentColor" stroke-width="2"/><path d="M6 14h12v7H6z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+<symbol id="ic-download" viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0l4-4m-4 4l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+<symbol id="ic-warn" viewBox="0 0 24 24" fill="none"><path d="M12 9v4m0 4h.01M10.3 3.9L2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="ic-idcard" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="2"/><circle cx="9" cy="11" r="2" stroke="currentColor" stroke-width="1.6"/><path d="M6 16c0-1.5 1.5-2.5 3-2.5s3 1 3 2.5M14 10h5M14 13h5M14 16h3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+</svg>
+
+<!-- ============== AUTH / LOGIN SCREEN ============== -->
+<div class="auth-screen" id="authScreen">
+  <div class="auth-box">
+    <div class="auth-logo"><svg width="30" height="30"><use href="#ic-logo"/></svg></div>
+
+    <!-- GOOGLE SIGN-IN (cloud sync — data available on every device) -->
+    <div id="authGooglePanel">
+      <h2>Welcome</h2>
+      <p class="auth-sub">Google se login karein — data cloud me safe rahega, sabhi devices par</p>
+      <button class="btn-google" id="googleSignInBtn" onclick="googleSignIn()">
+        <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.9 32.3 29.4 35 24 35c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.5 5.1 29.5 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21 21-9.4 21-21c0-1.2-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.5 7.1 29.5 5 24 5c-7.4 0-13.8 4.1-17.1 10.1z"/><path fill="#4CAF50" d="M24 45c5.4 0 10.3-2.1 14-5.5l-6.5-5.4C29.3 35.6 26.8 36.5 24 36.5c-5.3 0-9.8-3.4-11.4-8.1l-6.6 5.1C9.9 40.6 16.4 45 24 45z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-1 2.9-3 5.3-5.7 6.9l6.5 5.4C39.9 37.9 45 32 45 24c0-1.2-.1-2.4-.4-3.5z"/></svg>
+        Continue with Google
+      </button>
+      <p class="auth-hint">Aapke Google account se linked ek secure cloud copy ban jaayegi — phone kho jaaye ya badle to bhi data safe rahega.</p>
+      <div class="auth-divider">Or use offline login</div>
+      <button class="btn btn-outline btn-block" onclick="showOfflineAuth()"><svg><use href="#ic-idcard"/></svg> Continue Offline (this device only)</button>
+    </div>
+
+    <!-- SETUP MODE (first time only, offline) -->
+    <div id="authSetupPanel" style="display:none">
+      <button class="back-btn" style="margin-bottom:14px" onclick="showGoogleAuth()"><svg><use href="#ic-back"/></svg></button>
+      <h2>Create Login</h2>
+      <p class="auth-sub">पहली बार सेटअप करें / Set up your admin login</p>
+      <div class="auth-error" id="setupError"></div>
+      <div class="auth-field">
+        <label>Username / यूज़रनेम</label>
+        <input type="text" id="setupUsername" placeholder="e.g. admin" autocomplete="off">
+      </div>
+      <div class="auth-field">
+        <label>Password / पासवर्ड</label>
+        <input type="password" id="setupPassword" placeholder="Minimum 4 characters" autocomplete="new-password">
+      </div>
+      <div class="auth-field">
+        <label>Confirm Password</label>
+        <input type="password" id="setupPassword2" placeholder="Re-enter password" autocomplete="new-password">
+      </div>
+      <button class="btn btn-primary btn-block btn-lg" onclick="handleSetupSubmit()"><svg><use href="#ic-check"/></svg> Create Account &amp; Continue</button>
+      <p class="auth-hint">Ye login sirf isी device par kaam karega (LocalStorage based). Password bhool jaayein to Settings &gt; Clear Data se reset karna padega.</p>
+    </div>
+
+    <!-- LOGIN MODE (returning offline user) -->
+    <div id="authLoginPanel" style="display:none">
+      <button class="back-btn" style="margin-bottom:14px" onclick="showGoogleAuth()"><svg><use href="#ic-back"/></svg></button>
+      <h2>Welcome Back</h2>
+      <p class="auth-sub">लॉग इन करें / Login to continue</p>
+      <div class="auth-error" id="loginError"></div>
+      <div class="auth-field">
+        <label>Username / यूज़रनेम</label>
+        <input type="text" id="loginUsername" placeholder="Enter username" autocomplete="username">
+      </div>
+      <div class="auth-field">
+        <label>Password / पासवर्ड</label>
+        <input type="password" id="loginPassword" placeholder="Enter password" autocomplete="current-password">
+      </div>
+      <button class="btn btn-primary btn-block btn-lg" onclick="handleLoginSubmit()"><svg><use href="#ic-check"/></svg> Login</button>
+      <p class="auth-switch">Forgot password? <a onclick="openForgotConfirm()">Reset Login</a></p>
+    </div>
+  </div>
+</div>
+
+<div class="overlay-dim" id="overlayDim" onclick="closeMenu()"></div>
+<div class="dropdown" id="dropdownMenu">
+  <button onclick="showView('home')"><svg><use href="#ic-home"/></svg> Home / होम</button>
+  <button onclick="showView('history')"><svg><use href="#ic-history"/></svg> History / इतिहास</button>
+  <button onclick="showView('salary')"><svg><use href="#ic-salary"/></svg> Salary / वेतन</button>
+  <button onclick="showView('settings')"><svg><use href="#ic-settings"/></svg> Settings / सेटिंग्स</button>
+  <button onclick="openAbout()"><svg><use href="#ic-info"/></svg> About App</button>
+</div>
+
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-icon"><svg><use href="#ic-logo"/></svg></div>
+      <div class="brand-text">
+        <h1>WorkTrack Pro</h1>
+        <span>Worker Attendance System</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="header-date" id="headerDate"><b>--</b>--</div>
+      <button class="menu-btn" onclick="toggleMenu()"><svg><use href="#ic-menu"/></svg></button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ================= HOME VIEW ================= -->
+    <div class="view active" id="view-home">
+
+      <div class="dash-grid">
+        <div class="glass dash-card dc-blue">
+          <div class="dc-icon"><svg><use href="#ic-users"/></svg></div>
+          <div class="dc-val" id="statTotal">0</div>
+          <div class="dc-label">Total Workers</div>
+        </div>
+        <div class="glass dash-card dc-green">
+          <div class="dc-icon"><svg><use href="#ic-check"/></svg></div>
+          <div class="dc-val" id="statPresent">0</div>
+          <div class="dc-label">Present Today</div>
+        </div>
+        <div class="glass dash-card dc-red">
+          <div class="dc-icon"><svg><use href="#ic-x"/></svg></div>
+          <div class="dc-val" id="statAbsent">0</div>
+          <div class="dc-label">Absent Today</div>
+        </div>
+        <div class="glass dash-card dc-amber">
+          <div class="dc-icon"><svg><use href="#ic-money"/></svg></div>
+          <div class="dc-val" id="statSalary">₹0</div>
+          <div class="dc-label">Today's Salary</div>
+        </div>
+      </div>
+
+      <div class="action-row">
+        <button class="btn btn-primary" onclick="showView('add')"><svg><use href="#ic-plus"/></svg> Add New Worker</button>
+        <button class="btn btn-outline" onclick="showView('history')"><svg><use href="#ic-history"/></svg> History</button>
+      </div>
+
+      <div class="glass date-picker-card" id="dateCard">
+        <div class="dp-left">
+          <svg width="18" height="18"><use href="#ic-history"/></svg>
+          <div>
+            <div class="dp-label">Marking attendance for</div>
+            <div class="dp-date" id="dpDateText">Today</div>
+          </div>
+        </div>
+        <input type="date" id="attendDateInput" onchange="changeAttendDate()">
+      </div>
+
+      <div class="search-wrap">
+        <svg><use href="#ic-search"/></svg>
+        <input type="text" class="search-input" id="homeSearch" placeholder="Search by name, ID or department..." oninput="renderWorkerList()">
+      </div>
+
+      <div class="section-title" id="listTitle">All Workers</div>
+      <div id="workerListWrap"></div>
+
+    </div>
+
+    <!-- ================= ADD / EDIT WORKER VIEW ================= -->
+    <div class="view" id="view-add">
+      <div class="page-title">
+        <button class="back-btn" onclick="cancelWorkerForm()"><svg><use href="#ic-back"/></svg></button>
+        <div>
+          <h2 id="addFormTitle">Add New Worker</h2>
+          <p>Fill worker details below / कर्मचारी विवरण भरें</p>
+        </div>
+      </div>
+
+      <div class="glass form-card">
+        <div class="field">
+          <label>Worker ID (Auto Generated)</label>
+          <div class="autoid-box"><span id="autoIdDisplay">WRK001</span><svg width="18" height="18"><use href="#ic-idcard"/></svg></div>
+        </div>
+
+        <div class="field">
+          <label>Worker Photo (Optional)</label>
+          <label class="photo-upload" for="photoInput">
+            <div class="photo-preview" id="photoPreview"><svg><use href="#ic-camera"/></svg></div>
+            <span id="photoLabel">Tap to upload photo</span>
+          </label>
+          <input type="file" id="photoInput" accept="image/*" style="display:none" onchange="handlePhotoUpload(event)">
+        </div>
+
+        <div class="field">
+          <label>Worker Name / कर्मचारी नाम *</label>
+          <input type="text" id="fName" placeholder="e.g. Ramesh Kumar">
+        </div>
+        <div class="field">
+          <label>Mobile Number / मोबाइल नंबर</label>
+          <input type="tel" id="fMobile" placeholder="e.g. 9876543210" maxlength="10">
+        </div>
+        <div class="field">
+          <label>Department / विभाग</label>
+          <input type="text" id="fDept" placeholder="e.g. Construction, Electrical...">
+        </div>
+        <div class="field">
+          <label>Daily Wage (₹) / दैनिक मजदूरी *</label>
+          <input type="number" id="fWage" placeholder="e.g. 500" min="0">
+        </div>
+
+        <div class="form-actions">
+          <button class="btn btn-secondary btn-block btn-lg" onclick="cancelWorkerForm()">Cancel</button>
+          <button class="btn btn-primary btn-block btn-lg" onclick="saveWorker()"><svg><use href="#ic-check"/></svg> Save Worker</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= HISTORY VIEW ================= -->
+    <div class="view" id="view-history">
+      <div class="page-title">
+        <button class="back-btn" onclick="showView('home')"><svg><use href="#ic-back"/></svg></button>
+        <div>
+          <h2>Attendance History</h2>
+          <p>पूरा इतिहास देखें / View full attendance record</p>
+        </div>
+      </div>
+
+      <div class="search-wrap">
+        <svg><use href="#ic-search"/></svg>
+        <input type="text" class="search-input" id="histSearch" placeholder="Search worker..." oninput="renderHistory()">
+      </div>
+      <div class="filter-row">
+        <input type="month" id="histMonth" onchange="renderHistory()">
+        <button class="btn btn-outline btn-sm" onclick="clearHistFilter()">Clear</button>
+      </div>
+
+      <div id="historyListWrap"></div>
+    </div>
+
+    <!-- ================= SALARY VIEW ================= -->
+    <div class="view" id="view-salary">
+      <div class="page-title">
+        <button class="back-btn" onclick="showView('home')"><svg><use href="#ic-back"/></svg></button>
+        <div>
+          <h2>Salary Report</h2>
+          <p>वेतन गणना / Automatic salary calculation</p>
+        </div>
+      </div>
+
+      <div class="filter-row">
+        <input type="month" id="salMonth" onchange="renderSalary()">
+      </div>
+
+      <div class="export-row">
+        <button class="btn btn-outline btn-block" onclick="printSalary()"><svg><use href="#ic-print"/></svg> Print</button>
+        <button class="btn btn-outline btn-block" onclick="downloadCSV()"><svg><use href="#ic-download"/></svg> CSV</button>
+      </div>
+
+      <div id="salaryListWrap"></div>
+
+      <div class="dash-grid" style="margin-top:6px">
+        <div class="glass dash-card dc-amber">
+          <div class="dc-icon"><svg><use href="#ic-money"/></svg></div>
+          <div class="dc-val" id="grandAdvVal">₹0</div>
+          <div class="dc-label">Total Advance Paid</div>
+        </div>
+        <div class="glass dash-card dc-green">
+          <div class="dc-icon"><svg><use href="#ic-salary"/></svg></div>
+          <div class="dc-val" id="grandNetVal">₹0</div>
+          <div class="dc-label">Net Payable</div>
+        </div>
+      </div>
+
+      <div class="grand-total glass" id="grandTotalBox">
+        <div>
+          <h3>Grand Total Salary</h3>
+          <div class="gt-val" id="grandTotalVal">₹0</div>
+        </div>
+        <svg width="34" height="34" style="opacity:.8"><use href="#ic-money"/></svg>
+      </div>
+    </div>
+
+    <!-- ================= SETTINGS VIEW ================= -->
+    <div class="view" id="view-settings">
+      <div class="page-title">
+        <button class="back-btn" onclick="showView('home')"><svg><use href="#ic-back"/></svg></button>
+        <div>
+          <h2>Settings</h2>
+          <p>सेटिंग्स / App preferences</p>
+        </div>
+      </div>
+
+      <div class="sync-banner" id="syncBanner">
+        <svg><use href="#ic-backup"/></svg>
+        <div class="sb-text">Checking sync status...</div>
+      </div>
+
+      <div class="glass settings-list" id="googleAccountBox" style="display:none; margin-bottom:14px;">
+        <div class="set-item">
+          <div class="set-left">
+            <img class="gacc-avatar" id="gaccAvatar" src="">
+            <div class="set-text"><b id="gaccName">-</b><span id="gaccEmail">-</span></div>
+          </div>
+        </div>
+        <div class="set-item" onclick="confirmGoogleSignOut()" style="cursor:pointer">
+          <div class="set-left">
+            <div class="set-icon purple"><svg><use href="#ic-back"/></svg></div>
+            <div class="set-text"><b>Sign Out of Google</b><span>Data stays safe in the cloud</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass settings-list" id="offlineAccountBox">
+        <div class="set-item" onclick="startGoogleLinkFromSettings()" style="cursor:pointer">
+          <div class="set-left">
+            <div class="set-icon purple"><svg><use href="#ic-backup"/></svg></div>
+            <div class="set-text"><b>Enable Google Cloud Sync</b><span>Backup & sync data with Google</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass settings-list">
+        <div class="set-item">
+          <div class="set-left">
+            <div class="set-icon"><svg><use href="#ic-moon"/></svg></div>
+            <div class="set-text"><b>Dark Mode</b><span>Switch to dark theme</span></div>
+          </div>
+          <label class="switch"><input type="checkbox" id="darkToggle" onchange="toggleDark()"><span class="slider"></span></label>
+        </div>
+
+        <div class="set-item" onclick="triggerBackup()" style="cursor:pointer">
+          <div class="set-left">
+            <div class="set-icon purple"><svg><use href="#ic-backup"/></svg></div>
+            <div class="set-text"><b>Backup Local Data</b><span>Download data as JSON file</span></div>
+          </div>
+        </div>
+
+        <div class="set-item" onclick="document.getElementById('restoreInput').click()" style="cursor:pointer">
+          <div class="set-left">
+            <div class="set-icon purple"><svg><use href="#ic-restore"/></svg></div>
+            <div class="set-text"><b>Restore Backup</b><span>Import data from JSON file</span></div>
+          </div>
+        </div>
+        <input type="file" id="restoreInput" accept=".json" style="display:none" onchange="handleRestore(event)">
+
+        <div class="set-item" onclick="openAbout()" style="cursor:pointer">
+          <div class="set-left">
+            <div class="set-icon"><svg><use href="#ic-info"/></svg></div>
+            <div class="set-text"><b>About App</b><span>Version & information</span></div>
+          </div>
+        </div>
+
+        <div class="set-item" onclick="confirmLogout()" style="cursor:pointer">
+          <div class="set-left">
+            <div class="set-icon purple"><svg><use href="#ic-back"/></svg></div>
+            <div class="set-text"><b>Logout</b><span>Sign out of this device</span></div>
+          </div>
+        </div>
+
+        <div class="set-item" onclick="confirmClearData()" style="cursor:pointer">
+          <div class="set-left">
+            <div class="set-icon danger"><svg><use href="#ic-trash"/></svg></div>
+            <div class="set-text"><b>Clear All Data</b><span>Delete everything permanently (incl. login)</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Hidden print area for salary report -->
+<div id="print-area" style="display:none"></div>
+
+<!-- Confirm Modal (delete / clear) -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal-box">
+    <div class="modal-icon"><svg><use href="#ic-warn"/></svg></div>
+    <h3 id="confirmTitle">Are you sure?</h3>
+    <p id="confirmMsg">This action cannot be undone.</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary btn-block" onclick="closeConfirm()">Cancel</button>
+      <button class="btn btn-danger btn-block" id="confirmActionBtn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- About Modal -->
+<div class="modal-overlay" id="aboutModal">
+  <div class="modal-box about-box">
+    <div class="about-logo"><svg><use href="#ic-logo"/></svg></div>
+    <h3>WorkTrack Pro</h3>
+    <p style="margin-bottom:4px">Worker Attendance Management System</p>
+    <p style="font-size:12px; margin-bottom:18px;">Version 1.0.0 • All data stored locally on this device.<br>Made for daily wage & staff attendance tracking.<br>हिंदी + English सपोर्ट</p>
+    <button class="btn btn-primary btn-block" onclick="closeAbout()">Close</button>
+  </div>
+</div>
+
+<!-- Advance Payment Modal -->
+<div class="modal-overlay" id="advanceModal">
+  <div class="modal-box">
+    <div class="modal-icon" style="background:var(--amber-tint); color:var(--amber)"><svg><use href="#ic-money"/></svg></div>
+    <h3>Add Advance Payment</h3>
+    <p id="advWorkerLabel">Worker</p>
+    <div class="field" style="margin-top:16px;">
+      <label>Amount (₹) *</label>
+      <input type="number" id="advAmount" placeholder="e.g. 1000" min="1">
+    </div>
+    <div class="field">
+      <label>Date *</label>
+      <input type="date" id="advDate">
+    </div>
+    <div class="field">
+      <label>Note (optional)</label>
+      <input type="text" id="advNote" placeholder="e.g. Diwali advance">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary btn-block" onclick="closeAdvanceModal()">Cancel</button>
+      <button class="btn btn-primary btn-block" onclick="saveAdvancePayment()"><svg><use href="#ic-check"/></svg> Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"><svg><use href="#ic-check"/></svg><span id="toastMsg"></span></div>
+
+<script>
+/* ======================================================
+   WORKTRACK PRO - CORE APP LOGIC
+   ====================================================== */
+
+/* ---------- Storage Keys ---------- */
+const LS_WORKERS = 'wtp_workers';
+const LS_ATTEND = 'wtp_attendance';
+const LS_SETTINGS = 'wtp_settings';
+const LS_AUTH = 'wtp_auth';
+const LS_SESSION = 'wtp_session';
+const LS_ADVANCES = 'wtp_advances';
+const LS_AUTHMODE = 'wtp_authmode'; // 'google' | 'offline'
+
+/* ======================================================
+   FIREBASE (Google Login + Cloud Sync)
+   ------------------------------------------------------
+   1) Go to https://console.firebase.google.com → create a project
+   2) Project Settings → General → "Your apps" → Add a Web app → copy the config below
+   3) Authentication → Sign-in method → enable "Google"
+   4) Firestore Database → Create database (start in production mode) and
+      set rules so each user can only read/write their own document, e.g:
+
+      rules_version = '2';
+      service cloud.firestore {
+        match /databases/{database}/documents {
+          match /users/{uid} {
+            allow read, write: if request.auth != null && request.auth.uid == uid;
+          }
+        }
+      }
+   ====================================================== */
+const firebaseConfig = {
+  apiKey: "AIzaSyDxNda44VP8YIPyTduJkm1E9SEDvUhc5d8",
+  authDomain: "worktrackpro-9e179.firebaseapp.com",
+  projectId: "worktrackpro-9e179",
+  storageBucket: "worktrackpro-9e179.firebasestorage.app",
+  messagingSenderId: "491619430204",
+  appId: "1:491619430204:web:c4d026a11c93961c277839"
+};
+
+let fbApp = null, fbAuth = null, fbDb = null, googleProvider = null;
+let firebaseReady = false;
+let currentGoogleUser = null;   // firebase user object once signed in
+let cloudSyncing = false;
+let cloudSaveTimer = null;
+
+function isFirebaseConfigured(){
+  return firebaseConfig.apiKey && firebaseConfig.apiKey.indexOf('YOUR_') !== 0;
+}
+
+function initFirebase(){
+  if(!isFirebaseConfigured()){
+    // No real Firebase project has been plugged in yet — app runs in offline-only mode.
+    console.warn('WorkTrack Pro: Firebase config not set. Google login/cloud sync is disabled until you add your firebaseConfig.');
+    return;
+  }
+  try{
+    fbApp = firebase.initializeApp(firebaseConfig);
+    fbAuth = firebase.auth();
+    fbDb = firebase.firestore();
+    googleProvider = new firebase.auth.GoogleAuthProvider();
+    firebaseReady = true;
+  }catch(e){
+    console.error('Firebase init failed', e);
+  }
+}
+initFirebase();
+
+/* ---------- Simple client-side hash (NOT cryptographically secure,
+   this is a local single-file app with no backend/server) ---------- */
+function simpleHash(str){
+  let h = 5381;
+  for(let i=0;i<str.length;i++){ h = ((h*33) ^ str.charCodeAt(i)) >>> 0; }
+  return h.toString(36);
+}
+
+/* ---------- State ---------- */
+let workers = loadJSON(LS_WORKERS, []);
+let attendance = loadJSON(LS_ATTEND, {});          // { "YYYY-MM-DD": { workerId: status } }
+let settings = loadJSON(LS_SETTINGS, {dark:false});
+let advances = loadJSON(LS_ADVANCES, {});          // { workerId: [ {id, date, amount, note} ] }
+let editingWorkerId = null;
+let uploadedPhotoData = null;
+let confirmCallback = null;
+let selectedDate = null; // set to today after todayStr() is defined below
+let advanceWorkerId = null;
+
+function loadJSON(key, fallback){
+  try{ const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
+  catch(e){ return fallback; }
+}
+function saveWorkers(){ localStorage.setItem(LS_WORKERS, JSON.stringify(workers)); syncToCloud(); }
+function saveAttendance(){ localStorage.setItem(LS_ATTEND, JSON.stringify(attendance)); syncToCloud(); }
+function saveSettings(){ localStorage.setItem(LS_SETTINGS, JSON.stringify(settings)); syncToCloud(); }
+function saveAdvances(){ localStorage.setItem(LS_ADVANCES, JSON.stringify(advances)); syncToCloud(); }
+
+/* ---------- Cloud Sync (debounced push to Firestore) ---------- */
+function syncToCloud(){
+  if(!firebaseReady || !currentGoogleUser) return;
+  clearTimeout(cloudSaveTimer);
+  cloudSaveTimer = setTimeout(()=>{
+    const payload = { workers, attendance, settings, advances, updatedAt: new Date().toISOString() };
+    setSyncBanner('syncing');
+    fbDb.collection('users').doc(currentGoogleUser.uid).set(payload, {merge:false})
+      .then(()=> setSyncBanner('synced'))
+      .catch(err=>{ console.error('Cloud sync failed', err); setSyncBanner('error'); });
+  }, 700);
+}
+
+function setSyncBanner(state){
+  const banner = document.getElementById('syncBanner');
+  if(!banner) return;
+  if(!firebaseReady){
+    banner.className = 'sync-banner offline';
+    banner.innerHTML = '<svg><use href="#ic-idcard"/></svg><div class="sb-text">Offline mode<small>Google cloud sync not configured for this app yet</small></div>';
+    return;
+  }
+  if(!currentGoogleUser){
+    banner.className = 'sync-banner offline';
+    banner.innerHTML = '<svg><use href="#ic-idcard"/></svg><div class="sb-text">Offline mode<small>Data is saved only on this device</small></div>';
+    return;
+  }
+  if(state==='syncing'){
+    banner.className = 'sync-banner';
+    banner.innerHTML = '<svg><use href="#ic-backup"/></svg><div class="sb-text">Syncing to cloud...<small>'+escapeHtml(currentGoogleUser.email||'')+'</small></div>';
+  } else if(state==='error'){
+    banner.className = 'sync-banner offline';
+    banner.innerHTML = '<svg><use href="#ic-warn"/></svg><div class="sb-text">Sync failed<small>Check your internet connection</small></div>';
+  } else {
+    banner.className = 'sync-banner';
+    banner.innerHTML = '<svg><use href="#ic-check"/></svg><div class="sb-text">Synced to Google account<small>'+escapeHtml(currentGoogleUser.email||'')+'</small></div>';
+  }
+}
+
+/* ---------- Date Helpers ---------- */
+function pad(n){ return n<10 ? '0'+n : ''+n; }
+function todayStr(){
+  const d = new Date();
+  return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+}
+function monthStr(dateStr){ return dateStr.slice(0,7); }
+function formatDisplayDate(dateStr){
+  const [y,m,d] = dateStr.split('-');
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return d + ' ' + months[parseInt(m)-1] + ' ' + y;
+}
+function setHeaderDate(){
+  const d = new Date();
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('headerDate').innerHTML = '<b>'+days[d.getDay()]+'</b>'+d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
+}
+
+/* ---------- Attendance Date Selector (for past-date entry) ---------- */
+selectedDate = todayStr();
+
+function syncDateInputUI(){
+  const input = document.getElementById('attendDateInput');
+  const dateCard = document.getElementById('dateCard');
+  const dpText = document.getElementById('dpDateText');
+  if(!input) return;
+  input.max = todayStr();
+  input.value = selectedDate;
+  const isToday = selectedDate === todayStr();
+  dpText.textContent = isToday ? 'Today, ' + formatDisplayDate(selectedDate) : formatDisplayDate(selectedDate);
+  dateCard.classList.toggle('past-mode', !isToday);
+}
+
+function changeAttendDate(){
+  const input = document.getElementById('attendDateInput');
+  let val = input.value;
+  if(!val) { val = todayStr(); }
+  if(val > todayStr()){ val = todayStr(); showToast('Future date not allowed', 'error'); }
+  selectedDate = val;
+  syncDateInputUI();
+  renderDashboard();
+  renderWorkerList();
+}
+
+/* ---------- Navigation ---------- */
+function showView(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+id).classList.add('active');
+  closeMenu();
+  window.scrollTo({top:0, behavior:'smooth'});
+  if(id==='home'){ syncDateInputUI(); renderDashboard(); renderWorkerList(); }
+  if(id==='history'){ renderHistory(); }
+  if(id==='salary'){ renderSalary(); }
+  if(id==='settings'){
+    document.getElementById('darkToggle').checked = !!settings.dark;
+    setSyncBanner(currentGoogleUser ? 'synced' : null);
+    populateGoogleAccountUI(currentGoogleUser);
+  }
+}
+
+function toggleMenu(){
+  document.getElementById('dropdownMenu').classList.toggle('open');
+  document.getElementById('overlayDim').classList.toggle('open');
+}
+function closeMenu(){
+  document.getElementById('dropdownMenu').classList.remove('open');
+  document.getElementById('overlayDim').classList.remove('open');
+}
+
+/* ---------- Toast ---------- */
+let toastTimer = null;
+function showToast(msg, type='success'){
+  const toast = document.getElementById('toast');
+  const iconUse = toast.querySelector('svg use');
+  toast.className = 'toast t-'+type;
+  document.getElementById('toastMsg').textContent = msg;
+  iconUse.setAttribute('href', type==='error' ? '#ic-x' : (type==='info' ? '#ic-info' : '#ic-check'));
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>toast.classList.remove('show'), 2400);
+}
+
+/* ---------- Dashboard ---------- */
+function renderDashboard(){
+  const dateData = attendance[selectedDate] || {};
+  let present=0, absent=0, salary=0;
+  workers.forEach(w=>{
+    const st = dateData[w.id];
+    if(st==='present'){ present++; salary += Number(w.wage||0); }
+    else if(st==='half'){ present++; salary += Number(w.wage||0)/2; }
+    else if(st==='absent'){ absent++; }
+  });
+  document.getElementById('statTotal').textContent = workers.length;
+  document.getElementById('statPresent').textContent = present;
+  document.getElementById('statAbsent').textContent = absent;
+  document.getElementById('statSalary').textContent = '₹'+Math.round(salary).toLocaleString('en-IN');
+
+  const isToday = selectedDate === todayStr();
+  document.querySelectorAll('#view-home .dc-green .dc-label')[0].textContent = isToday ? 'Present Today' : 'Present';
+  document.querySelectorAll('#view-home .dc-red .dc-label')[0].textContent = isToday ? 'Absent Today' : 'Absent';
+  document.querySelectorAll('#view-home .dc-amber .dc-label')[0].textContent = isToday ? "Today's Salary" : 'Day Salary';
+}
+
+/* ---------- Worker List (Home) ---------- */
+function initials(name){
+  return name.trim().split(/\s+/).slice(0,2).map(s=>s[0]?.toUpperCase()||'').join('');
+}
+function renderWorkerList(){
+  const query = (document.getElementById('homeSearch').value||'').toLowerCase().trim();
+  const wrap = document.getElementById('workerListWrap');
+  const dateData = attendance[selectedDate] || {};
+
+  let list = workers.filter(w=>{
+    if(!query) return true;
+    return w.name.toLowerCase().includes(query) || w.id.toLowerCase().includes(query) || (w.dept||'').toLowerCase().includes(query);
+  });
+
+  document.getElementById('listTitle').textContent = query ? `Search Results (${list.length})` : `All Workers (${workers.length})`;
+
+  if(list.length===0){
+    wrap.innerHTML = `<div class="glass empty-state">
+      <div class="circle-ico"><svg><use href="#ic-users"/></svg></div>
+      <h3>${workers.length===0 ? 'No workers added yet' : 'No matching workers'}</h3>
+      <p>${workers.length===0 ? 'Tap "Add New Worker" to get started' : 'Try a different search term'}</p>
+    </div>`;
+    return;
+  }
+
+  wrap.innerHTML = list.map((w, idx)=>{
+    const st = dateData[w.id] || null;
+    const avatar = w.photo ? `<img class="worker-avatar" src="${w.photo}">` : `<div class="worker-avatar">${initials(w.name)}</div>`;
+    let badge = `<span class="worker-status-badge badge-none">Not Marked</span>`;
+    if(st==='present') badge = `<span class="worker-status-badge badge-present">Present</span>`;
+    if(st==='absent') badge = `<span class="worker-status-badge badge-absent">Absent</span>`;
+    if(st==='half') badge = `<span class="worker-status-badge badge-half">Half Day</span>`;
+    if(st==='leave') badge = `<span class="worker-status-badge badge-leave">Leave</span>`;
+
+    return `
+    <div class="glass worker-card" id="card-${w.id}">
+      <div class="worker-top">
+        <div class="worker-serial">${idx+1}</div>
+        ${avatar}
+        <div class="worker-info">
+          <div class="worker-name">${escapeHtml(w.name)}</div>
+          <div class="worker-meta"><span class="tag">${w.id}</span>${w.dept?`<span>${escapeHtml(w.dept)}</span>`:''}</div>
+        </div>
+        ${badge}
+      </div>
+      <div class="attend-row">
+        <button class="att-btn att-present ${st==='present'?'active':''}" onclick="markAttendance('${w.id}','present')">
+          <svg><use href="#ic-check"/></svg> Present
+        </button>
+        <button class="att-btn att-absent ${st==='absent'?'active':''}" onclick="markAttendance('${w.id}','absent')">
+          <svg><use href="#ic-x"/></svg> Absent
+        </button>
+      </div>
+      <div class="mini-row">
+        <button class="mini-link ${st==='half'?'on-half':''}" onclick="markAttendance('${w.id}','half')">Half Day</button>
+        <button class="mini-link ${st==='leave'?'on-leave':''}" onclick="markAttendance('${w.id}','leave')">Leave</button>
+      </div>
+      <div class="worker-actions">
+        <button class="icon-btn" onclick="editWorker('${w.id}')"><svg><use href="#ic-edit"/></svg></button>
+        <button class="icon-btn" onclick="deleteWorker('${w.id}')" style="color:var(--red)"><svg><use href="#ic-trash"/></svg></button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+/* ---------- Mark Attendance ---------- */
+function markAttendance(workerId, status){
+  const dateKey = selectedDate;
+  if(!attendance[dateKey]) attendance[dateKey] = {};
+  const current = attendance[dateKey][workerId];
+  // toggle off if clicking same status again
+  attendance[dateKey][workerId] = (current===status) ? null : status;
+  if(attendance[dateKey][workerId]===null) delete attendance[dateKey][workerId];
+  saveAttendance();
+
+  const worker = workers.find(w=>w.id===workerId);
+  renderWorkerList();
+  renderDashboard();
+
+  const card = document.getElementById('card-'+workerId);
+  if(card){
+    if(status==='present') { card.classList.add('pulse-anim'); setTimeout(()=>card.classList.remove('pulse-anim'),500); }
+    if(status==='absent') { card.classList.add('pulse-bad'); setTimeout(()=>card.classList.remove('pulse-bad'),500); }
+  }
+  const labels = {present:'Present ✓ मार्क किया गया', absent:'Absent marked ✓', half:'Half Day marked', leave:'Leave marked'};
+  const dateSuffix = dateKey===todayStr() ? '' : ` (${formatDisplayDate(dateKey)})`;
+  if(attendance[dateKey][workerId]){
+    showToast(`${worker.name}: ${labels[status]}${dateSuffix}`, status==='absent' ? 'error' : 'success');
+  } else {
+    showToast(`${worker.name}: Status cleared${dateSuffix}`, 'info');
+  }
+}
+
+/* ---------- Add / Edit Worker ---------- */
+function generateWorkerId(){
+  let maxNum = 0;
+  workers.forEach(w=>{
+    const m = w.id.match(/(\d+)/);
+    if(m) maxNum = Math.max(maxNum, parseInt(m[1]));
+  });
+  return 'WRK' + pad(maxNum+1).padStart(3,'0');
+}
+
+function openAddForm(){
+  editingWorkerId = null;
+  uploadedPhotoData = null;
+  document.getElementById('addFormTitle').textContent = 'Add New Worker';
+  document.getElementById('autoIdDisplay').textContent = generateWorkerId();
+  document.getElementById('fName').value = '';
+  document.getElementById('fMobile').value = '';
+  document.getElementById('fDept').value = '';
+  document.getElementById('fWage').value = '';
+  document.getElementById('photoPreview').innerHTML = '<svg><use href="#ic-camera"/></svg>';
+  document.getElementById('photoLabel').textContent = 'Tap to upload photo';
+}
+
+function editWorker(id){
+  const w = workers.find(x=>x.id===id);
+  if(!w) return;
+  editingWorkerId = id;
+  uploadedPhotoData = w.photo || null;
+  document.getElementById('addFormTitle').textContent = 'Edit Worker';
+  document.getElementById('autoIdDisplay').textContent = w.id;
+  document.getElementById('fName').value = w.name;
+  document.getElementById('fMobile').value = w.mobile||'';
+  document.getElementById('fDept').value = w.dept||'';
+  document.getElementById('fWage').value = w.wage||'';
+  document.getElementById('photoPreview').innerHTML = w.photo ? `<img src="${w.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:14px">` : '<svg><use href="#ic-camera"/></svg>';
+  document.getElementById('photoLabel').textContent = w.photo ? 'Change photo' : 'Tap to upload photo';
+  showView('add');
+}
+
+function handlePhotoUpload(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    uploadedPhotoData = ev.target.result;
+    document.getElementById('photoPreview').innerHTML = `<img src="${uploadedPhotoData}" style="width:100%;height:100%;object-fit:cover;border-radius:14px">`;
+    document.getElementById('photoLabel').textContent = 'Photo selected ✓';
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveWorker(){
+  const name = document.getElementById('fName').value.trim();
+  const mobile = document.getElementById('fMobile').value.trim();
+  const dept = document.getElementById('fDept').value.trim();
+  const wage = document.getElementById('fWage').value.trim();
+
+  if(!name){ showToast('Please enter worker name', 'error'); return; }
+  if(!wage || isNaN(wage) || Number(wage)<=0){ showToast('Please enter a valid daily wage', 'error'); return; }
+
+  if(editingWorkerId){
+    const w = workers.find(x=>x.id===editingWorkerId);
+    w.name = name; w.mobile = mobile; w.dept = dept; w.wage = Number(wage); w.photo = uploadedPhotoData;
+    showToast('Worker updated successfully ✓', 'success');
+  } else {
+    const newWorker = {
+      id: generateWorkerId(),
+      name, mobile, dept, wage: Number(wage),
+      photo: uploadedPhotoData,
+      createdAt: todayStr()
+    };
+    workers.push(newWorker);
+    showToast('Worker added successfully ✓', 'success');
+  }
+  saveWorkers();
+  editingWorkerId = null; uploadedPhotoData = null;
+  showView('home');
+}
+
+function cancelWorkerForm(){
+  editingWorkerId = null; uploadedPhotoData = null;
+  showView('home');
+}
+
+function deleteWorker(id){
+  const w = workers.find(x=>x.id===id);
+  if(!w) return;
+  document.getElementById('confirmTitle').textContent = 'Delete Worker?';
+  document.getElementById('confirmMsg').textContent = `"${w.name}" and all their attendance records will be permanently deleted. This cannot be undone.`;
+  const btn = document.getElementById('confirmActionBtn');
+  btn.textContent = 'Delete';
+  btn.onclick = function(){
+    workers = workers.filter(x=>x.id!==id);
+    Object.keys(attendance).forEach(date=>{ delete attendance[date][id]; });
+    delete advances[id];
+    saveWorkers(); saveAttendance(); saveAdvances();
+    closeConfirm();
+    renderDashboard(); renderWorkerList();
+    showToast('Worker deleted', 'info');
+  };
+  openConfirm();
+}
+
+/* ---------- Confirm Modal ---------- */
+function openConfirm(){ document.getElementById('confirmModal').classList.add('open'); }
+function closeConfirm(){ document.getElementById('confirmModal').classList.remove('open'); }
+
+/* ---------- About Modal ---------- */
+function openAbout(){ closeMenu(); document.getElementById('aboutModal').classList.add('open'); }
+function closeAbout(){ document.getElementById('aboutModal').classList.remove('open'); }
+
+/* ---------- History ---------- */
+function clearHistFilter(){
+  document.getElementById('histMonth').value = '';
+  document.getElementById('histSearch').value = '';
+  renderHistory();
+}
+
+function computeStats(workerId, monthFilter){
+  let present=0, absent=0, half=0, leave=0;
+  const dateRecords = [];
+  Object.keys(attendance).sort().reverse().forEach(date=>{
+    if(monthFilter && monthStr(date)!==monthFilter) return;
+    const st = attendance[date][workerId];
+    if(!st) return;
+    if(st==='present') present++;
+    else if(st==='absent') absent++;
+    else if(st==='half') half++;
+    else if(st==='leave') leave++;
+    dateRecords.push({date, status:st});
+  });
+  return {present, absent, half, leave, dateRecords};
+}
+
+function renderHistory(){
+  const query = (document.getElementById('histSearch').value||'').toLowerCase().trim();
+  const monthFilter = document.getElementById('histMonth').value;
+  const wrap = document.getElementById('historyListWrap');
+
+  let list = workers.filter(w=>{
+    if(!query) return true;
+    return w.name.toLowerCase().includes(query) || w.id.toLowerCase().includes(query) || (w.dept||'').toLowerCase().includes(query);
+  });
+
+  if(list.length===0){
+    wrap.innerHTML = `<div class="glass empty-state">
+      <div class="circle-ico"><svg><use href="#ic-history"/></svg></div>
+      <h3>No history found</h3><p>Add workers and mark attendance first</p></div>`;
+    return;
+  }
+
+  wrap.innerHTML = list.map(w=>{
+    const s = computeStats(w.id, monthFilter);
+    const statusIcon = {present:'✓ Present', absent:'✕ Absent', half:'◐ Half Day', leave:'⏸ Leave'};
+    const statusClass = {present:'hp', absent:'ha', half:'hh', leave:'hl'};
+    const rows = s.dateRecords.map(r=>`
+      <div class="dw-row">
+        <span>${formatDisplayDate(r.date)}</span>
+        <span style="font-weight:700; color:var(--${r.status==='present'?'green':r.status==='absent'?'red':r.status==='half'?'amber':'purple'})">${statusIcon[r.status]}</span>
+      </div>`).join('') || '<p style="font-size:12px;color:var(--text-faint);text-align:center;padding:10px">No records for this period</p>';
+
+    return `
+    <div class="glass hist-card">
+      <div class="hist-head">
+        ${w.photo ? `<img class="worker-avatar" src="${w.photo}">` : `<div class="worker-avatar">${initials(w.name)}</div>`}
+        <div class="worker-info">
+          <div class="worker-name">${escapeHtml(w.name)}</div>
+          <div class="worker-meta"><span class="tag">${w.id}</span>${w.dept?`<span>${escapeHtml(w.dept)}</span>`:''}</div>
+        </div>
+      </div>
+      <div class="hist-stats">
+        <div class="hstat hp"><b>${s.present}</b><span>Present</span></div>
+        <div class="hstat ha"><b>${s.absent}</b><span>Absent</span></div>
+        <div class="hstat hh"><b>${s.half}</b><span>Half</span></div>
+        <div class="hstat hl"><b>${s.leave}</b><span>Leave</span></div>
+      </div>
+      <details class="datewise">
+        <summary>📅 View Date-wise Attendance History</summary>
+        <div class="datewise-list">${rows}</div>
+      </details>
+    </div>`;
+  }).join('');
+}
+
+/* ---------- Advance Payments ---------- */
+function computeAdvanceStats(workerId, monthFilter){
+  const list = (advances[workerId]||[]).filter(a=> !monthFilter || monthStr(a.date)===monthFilter);
+  const sorted = list.slice().sort((a,b)=> b.date.localeCompare(a.date));
+  const total = sorted.reduce((sum,a)=> sum + Number(a.amount||0), 0);
+  return {total, list: sorted};
+}
+
+function openAdvanceModal(workerId){
+  const w = workers.find(x=>x.id===workerId);
+  if(!w) return;
+  advanceWorkerId = workerId;
+  document.getElementById('advWorkerLabel').textContent = `${w.name} (${w.id}) ke liye advance payment jodein`;
+  document.getElementById('advAmount').value = '';
+  document.getElementById('advDate').value = todayStr();
+  document.getElementById('advDate').max = todayStr();
+  document.getElementById('advNote').value = '';
+  document.getElementById('advanceModal').classList.add('open');
+}
+function closeAdvanceModal(){
+  document.getElementById('advanceModal').classList.remove('open');
+  advanceWorkerId = null;
+}
+function saveAdvancePayment(){
+  const amount = document.getElementById('advAmount').value.trim();
+  const date = document.getElementById('advDate').value;
+  const note = document.getElementById('advNote').value.trim();
+  if(!advanceWorkerId) return;
+  if(!amount || isNaN(amount) || Number(amount)<=0){ showToast('Please enter a valid amount', 'error'); return; }
+  if(!date){ showToast('Please select a date', 'error'); return; }
+
+  if(!advances[advanceWorkerId]) advances[advanceWorkerId] = [];
+  advances[advanceWorkerId].push({
+    id: 'ADV'+Date.now(),
+    date, amount: Number(amount), note
+  });
+  saveAdvances();
+  closeAdvanceModal();
+  renderSalary();
+  const w = workers.find(x=>x.id===advanceWorkerId);
+  showToast(`₹${Number(amount).toLocaleString('en-IN')} advance saved for ${w?w.name:''} ✓`, 'success');
+}
+function deleteAdvance(workerId, advId){
+  document.getElementById('confirmTitle').textContent = 'Delete Advance Entry?';
+  document.getElementById('confirmMsg').textContent = 'This advance payment record will be permanently removed.';
+  const btn = document.getElementById('confirmActionBtn');
+  btn.textContent = 'Delete';
+  btn.onclick = function(){
+    advances[workerId] = (advances[workerId]||[]).filter(a=>a.id!==advId);
+    saveAdvances();
+    closeConfirm();
+    renderSalary();
+    showToast('Advance entry deleted', 'info');
+  };
+  openConfirm();
+}
+
+/* ---------- Salary ---------- */
+function renderSalary(){
+  const monthFilter = document.getElementById('salMonth').value;
+  const wrap = document.getElementById('salaryListWrap');
+
+  if(workers.length===0){
+    wrap.innerHTML = `<div class="glass empty-state">
+      <div class="circle-ico"><svg><use href="#ic-salary"/></svg></div>
+      <h3>No workers to calculate</h3><p>Add workers to see salary reports</p></div>`;
+    document.getElementById('grandTotalVal').textContent = '₹0';
+    return;
+  }
+
+  let grandTotal = 0, grandAdvance = 0;
+  wrap.innerHTML = workers.map(w=>{
+    const s = computeStats(w.id, monthFilter);
+    const salary = (s.present*Number(w.wage)) + (s.half*Number(w.wage)/2);
+    const adv = computeAdvanceStats(w.id, monthFilter);
+    const net = salary - adv.total;
+    grandTotal += salary;
+    grandAdvance += adv.total;
+
+    const advRows = adv.list.map(a=>`
+      <div class="adv-list-row">
+        <div class="adv-list-left">
+          <b>₹${Number(a.amount).toLocaleString('en-IN')}</b>
+          <span>${formatDisplayDate(a.date)}${a.note?' • '+escapeHtml(a.note):''}</span>
+        </div>
+        <button class="adv-del" onclick="deleteAdvance('${w.id}','${a.id}')"><svg><use href="#ic-x"/></svg></button>
+      </div>`).join('') || '<p style="font-size:11.5px;color:var(--text-faint);text-align:center;padding:8px">No advance payments yet</p>';
+
+    return `
+    <div class="glass salary-card">
+      <div class="sal-head">
+        <div>
+          <div class="sal-name">${escapeHtml(w.name)}</div>
+          <div class="sal-wage">Daily Wage: ₹${w.wage} • ${w.id}</div>
+        </div>
+        <div class="sal-total">₹${Math.round(salary).toLocaleString('en-IN')}</div>
+      </div>
+      <div class="sal-breakdown">
+        <span class="sal-chip" style="background:var(--green-tint);color:var(--green)">Present: ${s.present}</span>
+        <span class="sal-chip" style="background:var(--amber-tint);color:var(--amber)">Half: ${s.half}</span>
+        <span class="sal-chip" style="background:var(--purple-tint);color:var(--purple)">Leave: ${s.leave}</span>
+        <span class="sal-chip" style="background:var(--red-tint);color:var(--red)">Absent: ${s.absent}</span>
+      </div>
+
+      <div class="adv-net-box">
+        <span>Advance Paid</span>
+        <b style="color:var(--amber)">₹${Math.round(adv.total).toLocaleString('en-IN')}</b>
+      </div>
+      <div class="adv-net-box">
+        <span>Net Payable</span>
+        <b>₹${Math.round(net).toLocaleString('en-IN')}</b>
+      </div>
+
+      <button class="adv-add-btn" onclick="openAdvanceModal('${w.id}')"><svg width="14" height="14"><use href="#ic-plus"/></svg> Add Advance Payment</button>
+
+      <details class="datewise" style="margin-top:8px">
+        <summary>💰 View Advance Payment History</summary>
+        <div class="datewise-list">${advRows}</div>
+      </details>
+    </div>`;
+  }).join('');
+
+  document.getElementById('grandTotalVal').textContent = '₹'+Math.round(grandTotal).toLocaleString('en-IN');
+  const netEl = document.getElementById('grandNetVal');
+  if(netEl) netEl.textContent = '₹'+Math.round(grandTotal-grandAdvance).toLocaleString('en-IN');
+  const advEl = document.getElementById('grandAdvVal');
+  if(advEl) advEl.textContent = '₹'+Math.round(grandAdvance).toLocaleString('en-IN');
+}
+
+function printSalary(){
+  const monthFilter = document.getElementById('salMonth').value;
+  const monthLabel = monthFilter ? monthFilter : 'All Time';
+  let rows = '';
+  let grandTotal = 0, grandAdvance = 0;
+  workers.forEach(w=>{
+    const s = computeStats(w.id, monthFilter);
+    const salary = (s.present*Number(w.wage)) + (s.half*Number(w.wage)/2);
+    const adv = computeAdvanceStats(w.id, monthFilter);
+    const net = salary - adv.total;
+    grandTotal += salary; grandAdvance += adv.total;
+    rows += `<tr>
+      <td>${escapeHtml(w.name)}</td><td>${w.id}</td><td>₹${w.wage}</td>
+      <td>${s.present}</td><td>${s.half}</td><td>${s.leave}</td><td>${s.absent}</td>
+      <td>₹${Math.round(salary).toLocaleString('en-IN')}</td>
+      <td>₹${Math.round(adv.total).toLocaleString('en-IN')}</td>
+      <td><b>₹${Math.round(net).toLocaleString('en-IN')}</b></td>
+    </tr>`;
+  });
+  document.getElementById('print-area').innerHTML = `
+    <h2 style="font-family:sans-serif;color:#2563EB">WorkTrack Pro - Salary Report</h2>
+    <p style="font-family:sans-serif;color:#555">Period: ${monthLabel} • Generated: ${formatDisplayDate(todayStr())}</p>
+    <table style="width:100%;border-collapse:collapse;font-family:sans-serif;font-size:13px;margin-top:14px">
+      <thead><tr style="background:#2563EB;color:#fff">
+        <th style="padding:8px;text-align:left">Name</th><th style="padding:8px">ID</th><th style="padding:8px">Wage</th>
+        <th style="padding:8px">Present</th><th style="padding:8px">Half</th><th style="padding:8px">Leave</th><th style="padding:8px">Absent</th>
+        <th style="padding:8px">Gross Salary</th><th style="padding:8px">Advance Paid</th><th style="padding:8px">Net Payable</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <h3 style="font-family:sans-serif;margin-top:16px">Grand Total Salary: ₹${Math.round(grandTotal).toLocaleString('en-IN')}</h3>
+    <h3 style="font-family:sans-serif;margin-top:6px;color:#d97706">Total Advance Paid: ₹${Math.round(grandAdvance).toLocaleString('en-IN')}</h3>
+    <h3 style="font-family:sans-serif;margin-top:6px;color:#16a34a">Net Payable: ₹${Math.round(grandTotal-grandAdvance).toLocaleString('en-IN')}</h3>
+  `;
+  const styleRows = document.querySelectorAll('#print-area td, #print-area th');
+  styleRows.forEach(el=>el.style.border='1px solid #ddd');
+  window.print();
+}
+
+function downloadCSV(){
+  const monthFilter = document.getElementById('salMonth').value;
+  let csv = 'Worker Name,Worker ID,Department,Daily Wage,Present Days,Half Days,Leave Days,Absent Days,Gross Salary,Advance Paid,Net Payable\n';
+  let grandTotal = 0, grandAdvance = 0;
+  workers.forEach(w=>{
+    const s = computeStats(w.id, monthFilter);
+    const salary = (s.present*Number(w.wage)) + (s.half*Number(w.wage)/2);
+    const adv = computeAdvanceStats(w.id, monthFilter);
+    const net = salary - adv.total;
+    grandTotal += salary; grandAdvance += adv.total;
+    csv += `"${w.name}","${w.id}","${w.dept||''}",${w.wage},${s.present},${s.half},${s.leave},${s.absent},${Math.round(salary)},${Math.round(adv.total)},${Math.round(net)}\n`;
+  });
+  csv += `,,,,,,,,Grand Total,${Math.round(grandAdvance)},${Math.round(grandTotal-grandAdvance)}\n`;
+
+  // Also append a full advance-payment log (date-wise, all workers)
+  csv += `\nAdvance Payment Log\nWorker Name,Worker ID,Date,Amount,Note\n`;
+  workers.forEach(w=>{
+    const adv = computeAdvanceStats(w.id, monthFilter);
+    adv.list.forEach(a=>{
+      csv += `"${w.name}","${w.id}",${a.date},${Math.round(a.amount)},"${(a.note||'').replace(/"/g,'')}"\n`;
+    });
+  });
+
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `WorkTrackPro_Salary_${monthFilter||'AllTime'}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('CSV downloaded successfully ✓', 'success');
+}
+
+/* ---------- Settings ---------- */
+function applyDarkMode(){
+  if(settings.dark){ document.documentElement.classList.add('dark'); }
+  else { document.documentElement.classList.remove('dark'); }
+}
+function toggleDark(){
+  settings.dark = document.getElementById('darkToggle').checked;
+  saveSettings();
+  applyDarkMode();
+  showToast(settings.dark ? 'Dark mode enabled' : 'Light mode enabled', 'info');
+}
+
+function triggerBackup(){
+  const data = {workers, attendance, settings, advances, exportedAt:new Date().toISOString()};
+  const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `WorkTrackPro_Backup_${todayStr()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('Backup downloaded successfully ✓', 'success');
+}
+
+function handleRestore(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    try{
+      const data = JSON.parse(ev.target.result);
+      if(!data.workers || !data.attendance){ showToast('Invalid backup file', 'error'); return; }
+      document.getElementById('confirmTitle').textContent = 'Restore Backup?';
+      document.getElementById('confirmMsg').textContent = 'This will overwrite all current data with the backup file. Continue?';
+      const btn = document.getElementById('confirmActionBtn');
+      btn.textContent = 'Restore';
+      btn.onclick = function(){
+        workers = data.workers || [];
+        attendance = data.attendance || {};
+        settings = data.settings || {dark:false};
+        advances = data.advances || {};
+        saveWorkers(); saveAttendance(); saveSettings(); saveAdvances();
+        applyDarkMode();
+        closeConfirm();
+        showView('home');
+        showToast('Backup restored successfully ✓', 'success');
+      };
+      openConfirm();
+    }catch(err){ showToast('Failed to read backup file', 'error'); }
+    e.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
+function confirmClearData(){
+  document.getElementById('confirmTitle').textContent = 'Clear All Data?';
+  document.getElementById('confirmMsg').textContent = 'This will permanently delete all workers and attendance records. This action cannot be undone.';
+  const btn = document.getElementById('confirmActionBtn');
+  btn.textContent = 'Clear Everything';
+  btn.onclick = function(){
+    localStorage.removeItem(LS_WORKERS);
+    localStorage.removeItem(LS_ATTEND);
+    localStorage.removeItem(LS_ADVANCES);
+    localStorage.removeItem(LS_AUTH);
+    localStorage.removeItem(LS_SESSION);
+    localStorage.removeItem(LS_AUTHMODE);
+    if(firebaseReady && currentGoogleUser){
+      fbDb.collection('users').doc(currentGoogleUser.uid).delete().catch(()=>{});
+      fbAuth.signOut();
+    }
+    closeConfirm();
+    location.reload();
+  };
+  openConfirm();
+}
+
+/* ---------- Init ---------- */
+document.getElementById('view-add') && (function patchAddButton(){
+  // ensure "Add New Worker" opens a fresh form each time
+  const origShow = showView;
+})();
+
+function initApp(){
+  setHeaderDate();
+  applyDarkMode();
+  document.getElementById('darkToggle').checked = !!settings.dark;
+  selectedDate = todayStr();
+  syncDateInputUI();
+  renderDashboard();
+  renderWorkerList();
+  setSyncBanner(currentGoogleUser ? 'synced' : null);
+  populateGoogleAccountUI(currentGoogleUser);
+
+  // patch add-new-worker button to reset form
+  document.querySelectorAll('[onclick="showView(\'add\')"]').forEach(btn=>{
+    btn.addEventListener('click', openAddForm);
+  });
+}
+
+/* ======================================================
+   AUTHENTICATION
+   - Google mode: Firebase Auth + Firestore cloud sync (data follows the account)
+   - Offline mode: local device-only username/password lock (LocalStorage only)
+   ====================================================== */
+function showGoogleAuth(){
+  document.getElementById('authGooglePanel').style.display = 'block';
+  document.getElementById('authSetupPanel').style.display = 'none';
+  document.getElementById('authLoginPanel').style.display = 'none';
+}
+function showOfflineAuth(){
+  document.getElementById('authGooglePanel').style.display = 'none';
+  const authData = loadJSON(LS_AUTH, null);
+  document.getElementById('authSetupPanel').style.display = authData ? 'none' : 'block';
+  document.getElementById('authLoginPanel').style.display = authData ? 'block' : 'none';
+}
+
+function googleSignIn(){
+  if(!firebaseReady){
+    showToast('Google login is not configured yet — add your Firebase project details in the code', 'error');
+    return;
+  }
+  const btn = document.getElementById('googleSignInBtn');
+  if(btn) btn.style.opacity = '.6';
+  fbAuth.signInWithPopup(googleProvider)
+    .catch(err=>{
+      console.error(err);
+      showToast('Google sign-in failed. Please try again.', 'error');
+    })
+    .finally(()=>{ if(btn) btn.style.opacity = '1'; });
+}
+
+function loadCloudData(uid){
+  return fbDb.collection('users').doc(uid).get().then(doc=>{
+    if(doc.exists){
+      const data = doc.data();
+      workers = data.workers || [];
+      attendance = data.attendance || {};
+      settings = data.settings || {dark:false};
+      advances = data.advances || {};
+      localStorage.setItem(LS_WORKERS, JSON.stringify(workers));
+      localStorage.setItem(LS_ATTEND, JSON.stringify(attendance));
+      localStorage.setItem(LS_SETTINGS, JSON.stringify(settings));
+      localStorage.setItem(LS_ADVANCES, JSON.stringify(advances));
+    } else {
+      // First time signing in with Google on this device — push whatever
+      // local data already exists (if any) up to Firestore as the starting point.
+      return fbDb.collection('users').doc(uid).set({
+        workers, attendance, settings, advances, updatedAt: new Date().toISOString()
+      });
+    }
+  });
+}
+
+function populateGoogleAccountUI(user){
+  const box = document.getElementById('googleAccountBox');
+  const offBox = document.getElementById('offlineAccountBox');
+  if(!box) return;
+  if(user){
+    box.style.display = 'block';
+    if(offBox) offBox.style.display = 'none';
+    document.getElementById('gaccName').textContent = user.displayName || 'Google Account';
+    document.getElementById('gaccEmail').textContent = user.email || '';
+    const av = document.getElementById('gaccAvatar');
+    if(user.photoURL){ av.src = user.photoURL; av.style.display='block'; }
+    else { av.removeAttribute('src'); }
+  } else {
+    box.style.display = 'none';
+    if(offBox) offBox.style.display = 'block';
+  }
+}
+
+function confirmGoogleSignOut(){
+  document.getElementById('confirmTitle').textContent = 'Sign Out of Google?';
+  document.getElementById('confirmMsg').textContent = 'Your data stays safely saved in your Google account\'s cloud storage. You can sign back in anytime to continue.';
+  const btn = document.getElementById('confirmActionBtn');
+  btn.textContent = 'Sign Out';
+  btn.onclick = function(){
+    localStorage.removeItem(LS_AUTHMODE);
+    localStorage.removeItem(LS_SESSION);
+    closeConfirm();
+    fbAuth.signOut().finally(()=> location.reload());
+  };
+  openConfirm();
+}
+
+function startGoogleLinkFromSettings(){
+  if(!firebaseReady){
+    showToast('Google login is not configured yet for this app', 'error');
+    return;
+  }
+  fbAuth.signInWithPopup(googleProvider).catch(err=>{
+    console.error(err);
+    showToast('Google sign-in failed. Please try again.', 'error');
+  });
+}
+
+function checkAuth(){
+  applyDarkMode();
+
+  if(firebaseReady){
+    fbAuth.onAuthStateChanged(function(user){
+      if(user){
+        currentGoogleUser = user;
+        localStorage.setItem(LS_AUTHMODE, 'google');
+        localStorage.setItem(LS_SESSION, 'active');
+        loadCloudData(user.uid).finally(()=>{
+          document.getElementById('authScreen').style.display = 'none';
+          initApp();
+          populateGoogleAccountUI(user);
+          setSyncBanner('synced');
+          showToast('Signed in as ' + (user.displayName||user.email) + ' ✓', 'success');
+        });
+      } else {
+        currentGoogleUser = null;
+        populateGoogleAccountUI(null);
+        if(localStorage.getItem(LS_AUTHMODE)==='google'){
+          // was signed in with Google before but session ended — show login screen again
+          localStorage.removeItem(LS_SESSION);
+        }
+        checkOfflineAuth();
+      }
+    });
+  } else {
+    checkOfflineAuth();
+  }
+}
+
+function checkOfflineAuth(){
+  const authData = loadJSON(LS_AUTH, null);
+  const sessionActive = localStorage.getItem(LS_SESSION) === 'active';
+  const authMode = localStorage.getItem(LS_AUTHMODE);
+
+  if(sessionActive && authData && authMode!=='google'){
+    // already logged in on this device (offline mode)
+    document.getElementById('authScreen').style.display = 'none';
+    initApp();
+    return;
+  }
+
+  document.getElementById('authScreen').style.display = 'flex';
+
+  if(!firebaseReady){
+    // No Firebase project configured — skip the Google option entirely
+    document.getElementById('authGooglePanel').style.display = 'none';
+    document.getElementById('authSetupPanel').style.display = authData ? 'none' : 'block';
+    document.getElementById('authLoginPanel').style.display = authData ? 'block' : 'none';
+  } else {
+    showGoogleAuth();
+  }
+}
+
+function handleSetupSubmit(){
+  const uname = document.getElementById('setupUsername').value.trim();
+  const pass = document.getElementById('setupPassword').value;
+  const pass2 = document.getElementById('setupPassword2').value;
+  const errBox = document.getElementById('setupError');
+  errBox.classList.remove('show');
+
+  if(!uname || uname.length<2){ errBox.textContent='Please enter a valid username (min 2 characters)'; errBox.classList.add('show'); return; }
+  if(!pass || pass.length<4){ errBox.textContent='Password must be at least 4 characters'; errBox.classList.add('show'); return; }
+  if(pass!==pass2){ errBox.textContent='Passwords do not match'; errBox.classList.add('show'); return; }
+
+  const authData = { username: uname, passHash: simpleHash(pass), createdAt: new Date().toISOString() };
+  localStorage.setItem(LS_AUTH, JSON.stringify(authData));
+  localStorage.setItem(LS_SESSION, 'active');
+  localStorage.setItem(LS_AUTHMODE, 'offline');
+
+  document.getElementById('authScreen').style.display = 'none';
+  initApp();
+  showToast('Account created — Welcome to WorkTrack Pro ✓', 'success');
+}
+
+function handleLoginSubmit(){
+  const uname = document.getElementById('loginUsername').value.trim();
+  const pass = document.getElementById('loginPassword').value;
+  const errBox = document.getElementById('loginError');
+  errBox.classList.remove('show');
+
+  const authData = loadJSON(LS_AUTH, null);
+  if(!authData){ checkAuth(); return; }
+
+  if(uname !== authData.username || simpleHash(pass) !== authData.passHash){
+    errBox.textContent = 'Invalid username or password';
+    errBox.classList.add('show');
+    return;
+  }
+
+  localStorage.setItem(LS_SESSION, 'active');
+  localStorage.setItem(LS_AUTHMODE, 'offline');
+  document.getElementById('authScreen').style.display = 'none';
+  document.getElementById('loginPassword').value = '';
+  initApp();
+  showToast('Login successful — Welcome back ✓', 'success');
+}
+
+function confirmLogout(){
+  const isGoogle = localStorage.getItem(LS_AUTHMODE)==='google';
+  if(isGoogle){ confirmGoogleSignOut(); return; }
+  document.getElementById('confirmTitle').textContent = 'Logout?';
+  document.getElementById('confirmMsg').textContent = 'You will need your username and password to login again on this device.';
+  const btn = document.getElementById('confirmActionBtn');
+  btn.textContent = 'Logout';
+  btn.onclick = function(){
+    localStorage.removeItem(LS_SESSION);
+    closeConfirm();
+    location.reload();
+  };
+  openConfirm();
+}
+
+function openForgotConfirm(){
+  document.getElementById('confirmTitle').textContent = 'Reset Login?';
+  document.getElementById('confirmMsg').textContent = 'This will remove the saved username/password so you can create a new login. Your worker & attendance data will NOT be deleted.';
+  const btn = document.getElementById('confirmActionBtn');
+  btn.textContent = 'Reset Login';
+  btn.onclick = function(){
+    localStorage.removeItem(LS_AUTH);
+    localStorage.removeItem(LS_SESSION);
+    closeConfirm();
+    location.reload();
+  };
+  openConfirm();
+}
+
+checkAuth();
+
+/* ---------- PWA: Register Service Worker (only works when hosted on
+   https:// or localhost — silently does nothing on Blogger/file:// so it
+   never breaks the normal single-file usage) ---------- */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('service-worker.js').catch(function(){
+      /* not hosted with a service worker available - safe to ignore */
+    });
+  });
+}
+
+</script>
+</body>
+</html>
