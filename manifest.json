@@ -2,7 +2,7 @@
   "name": "WorkTrack Pro - Worker Attendance Management",
   "short_name": "WorkTrack Pro",
   "description": "Worker Attendance Management System - Offline capable",
-  "start_url": "./worktrack-pro.html",
+"start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
