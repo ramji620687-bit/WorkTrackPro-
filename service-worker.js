@@ -3,7 +3,7 @@
 // AND handles the local attendance-reminder notification's quick-action
 // buttons (Mark All Present / Mark All Absent) — no server required.
 
-const CACHE_NAME = 'worktrack-pro-v2';
+const CACHE_NAME = 'worktrack-pro-v3';
 const FILES_TO_CACHE = [
   './index.html',
   './manifest.json',
