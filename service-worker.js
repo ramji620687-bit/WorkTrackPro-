@@ -1,9 +1,11 @@
 // WorkTrack Pro - Service Worker
-// Caches the app shell so it works fully offline after first visit.
+// Caches the app shell so it works fully offline after first visit,
+// AND handles the local attendance-reminder notification's quick-action
+// buttons (Mark All Present / Mark All Absent) — no server required.
 
-const CACHE_NAME = 'worktrack-pro-v1';
+const CACHE_NAME = 'worktrack-pro-v2';
 const FILES_TO_CACHE = [
-  './worktrack-pro.html',
+  './index.html',
   './manifest.json',
   './icon-192.png',
   './icon-512.png'
@@ -42,6 +44,35 @@ self.addEventListener('fetch', (event) => {
           return response;
         })
         .catch(() => cached);
+    })
+  );
+});
+
+/* ======================================================
+   NOTIFICATION ACTION HANDLING (free, no server/push needed)
+   The main app calls registration.showNotification(...) itself whenever
+   it's opened and today's attendance looks incomplete. This listener
+   just handles what happens when the person taps the notification or
+   one of its two quick-action buttons.
+   ====================================================== */
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const action = event.action; // 'present', 'absent', or '' (body tap)
+  const scopeUrl = self.registration.scope;
+  const targetUrl = action ? (scopeUrl + '?quickmark=' + action) : scopeUrl;
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      // If the app is already open in a tab, just message it directly —
+      // no need to navigate or open a new window.
+      for (const client of clientList) {
+        if ('focus' in client) {
+          if (action) client.postMessage({ type: 'quickmark', action: action });
+          return client.focus();
+        }
+      }
+      // Otherwise open the app so it can read the ?quickmark= param.
+      if (clients.openWindow) return clients.openWindow(targetUrl);
     })
   );
 });
